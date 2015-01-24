@@ -1,0 +1,159 @@
+package org.event_manager.api;
+
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import org.event_manager.native_events.TwitterEvent;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+public class EventUtils {
+
+	public static final String DATABASE_EVENT_DEMO = "EventDemo";	
+	public static final String DATABASE_COLLECTION_EVENT_CONTEXT = "EventContext";
+	public static final String DATABASE_COLLECTION_COMPONENT_CONTEXT = "ComponentContext";
+	public static final String DATABASE_COLLECTION_EVENT = "Events";
+	public static final String DATABASE_COLLECTION_COMPONENT = "Components";
+	public static final String DATABASE_COLLECTION_TWITTER_EVENT = "TwitterEvents";
+	
+	public static void deleteCollection(String collection){
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB( DATABASE_EVENT_DEMO);
+		
+		db.getCollection(collection).drop();
+		
+		
+	}
+	
+	// Get Context
+	
+	// Set Context
+	
+	// Get Event
+	
+	//Set Event
+
+	// Add Native Event
+	
+	// Get Native Event
+	public static List<TwitterEvent> getTwitterEventByDate(Date startDate, Date endDate){
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB( DATABASE_EVENT_DEMO);
+		List<TwitterEvent> events = new ArrayList<TwitterEvent>();
+		
+		//BasicDBObject query = new BasicDBObject("tweetDate", );
+		DBCollection coll = db.getCollection(DATABASE_COLLECTION_TWITTER_EVENT);
+		BasicDBObject query = new BasicDBObject();
+		query.put("tweetDate", BasicDBObjectBuilder.start("$gte", startDate).add("$lte", endDate).get());
+		DBCursor cursor2 = coll.find(query);	
+		// set index on a field
+		//coll.createIndex(new BasicDBObject("tweetDate", 1));
+		
+		try {
+			while(cursor2.hasNext()){
+				DBObject obj = cursor2.next();
+				TwitterEvent event = new TwitterEvent();
+				event.setTweetId((long) obj.get("tweetId"));
+				event.setTweetDate((Date) obj.get("tweetDate"));
+				event.setHashtag((String) obj.get("hashTag"));
+				event.setLanguageCode((String) obj.get("languageCode"));
+				event.setMessage((String) obj.get("message"));
+				event.setRetweetUser((String) obj.get("retweetUser"));
+				event.setSource((String) obj.get("source"));
+				event.setUserId((long) obj.get("userId"));
+				event.setUsername((String) obj.get("username"));
+				events.add(event);
+				//System.out.println(cursor2.next());
+			}
+		}
+		finally {
+			cursor2.close();
+		}
+		return events;
+	}
+
+	public static void addTwitterEvent(TwitterEvent event){
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB( DATABASE_EVENT_DEMO);
+
+		/*
+		 * {"hashtag":"#TimeMachine",
+		 * "tweetId":500695022178959360,
+		 * "tweetDate":"Sat Aug 16 17:26:10 UTC 2014",
+		 * "username":"Smiling_angel_1",
+		 * "userId":277928194,
+		 * "source":"<a href=\"http://blackberry.com/twitter\" rel=\"nofollow\">Twitter for BlackBerry®</a>",
+		 * "languageCode":"en",
+		 * "message":"I read old conversations and wish it was that day again.. #life #timemachine #relive #precious #moments",
+		 * "retweetUser":""}
+		 */
+		
+		BasicDBObject doc = new BasicDBObject("hashtag", event.getHashtag())
+		   .append("tweetId",event.getTweetId()).append("tweetDate", event.getTweetDate())
+		   .append("username",event.getUsername()).append("userId",event.getUserId())
+		   .append("source",event.getSource()).append("languageCode",event.getLanguageCode())
+		   .append("message",event.getMessage()).append("retweetUser",event.getRetweetUser());
+		db.getCollection(DATABASE_COLLECTION_TWITTER_EVENT).insert(doc);
+		//db.s("event2", new BasicDBObject("capped", true).append("size",  1048576));
+
+	/*	Set<String> colls = db.getCollectionNames();
+
+		for (String s : colls) {
+		    System.out.println(s);
+		    
+		}
+		
+		DBCollection coll = db.getCollection("eventDB");
+		
+		// insert a document
+		//String doc = "{ \"name\":\"MongoDB\"}";
+		
+		BasicDBObject doc = new BasicDBObject("name", "MongoDB")
+		   .append("type", "database").append("count", 1)
+		   .append("info",  new BasicDBObject("x",203).append("y",102));
+		
+		coll.insert(doc);
+		
+		System.out.println(coll.getCount());
+		
+		
+		BasicDBObject query = new BasicDBObject("name", "MongoDB");
+		DBCursor cursor2 = coll.find(query);
+		
+		// set index on a field
+		coll.createIndex(new BasicDBObject("name", 1));
+		
+		try {
+			while(cursor2.hasNext()){
+				System.out.println(cursor2.next());
+			}
+		}
+		finally {
+			cursor2.close();
+		}
+		
+		
+		DBObject do1 = coll.findOne();
+		System.out.println(do1.toString());
+		
+		DBCursor cursor = coll.find();
+		try {
+		   while(cursor.hasNext()) {
+		       System.out.println("LINE: " + cursor.next());
+		   }
+		} finally {
+		   cursor.close();
+		}
+		
+		mongoClient.close();*/
+	}
+}

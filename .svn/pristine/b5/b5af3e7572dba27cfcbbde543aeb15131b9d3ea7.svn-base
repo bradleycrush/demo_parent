@@ -1,0 +1,29 @@
+package org.message_manager.common;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+
+public class EventMessage implements Message<Serializable> {
+
+	private MessageHeaders headers = null;
+	private Serializable payload = null;
+
+	public EventMessage(Map<String,Object> headers, Serializable payload) {
+		this.headers =  new MessageHeaders(headers);
+		this.payload = payload;
+	}
+
+	@Override
+	public MessageHeaders getHeaders() {
+		return headers;
+	}
+
+	@Override
+	public Serializable getPayload() {
+		return payload;
+	}
+
+}

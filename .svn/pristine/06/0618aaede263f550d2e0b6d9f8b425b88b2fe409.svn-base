@@ -1,0 +1,26 @@
+package org.message_manager.publisher;
+
+import java.io.Serializable;
+
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class PublisherClient {
+
+	private final AmqpTemplate template;
+	private final ApplicationContext context;
+	
+	
+	public PublisherClient(){
+		context =
+			    new GenericXmlApplicationContext("classpath:/rabbit-context.xml");
+			template = context.getBean(AmqpTemplate.class);
+	}
+	
+	public boolean Send(String queue, Serializable message){
+		template.convertAndSend(queue, message);
+		
+		return true;
+	}
+}

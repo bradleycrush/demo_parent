@@ -1,0 +1,19 @@
+package org.component_factory;
+
+import org.event_manager.native_events.TwitterEvent;
+import org.message_manager.common.EventMessage;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.MessagingException;
+
+public class EventConsumer implements MessageHandler {
+
+	@Override
+	public void handleMessage(Message<?> arg0) throws MessagingException {
+		EventMessage message = (EventMessage) arg0;
+		TwitterEvent event = (TwitterEvent) message.getPayload();
+		System.out.println(event.getMessage());
+		
+	}
+
+}

@@ -1,0 +1,26 @@
+package org.message_manager.consumer;
+
+import java.io.Serializable;
+
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class ConsumerClient {
+
+	private final ApplicationContext context;
+	private final AmqpTemplate template;
+
+	public ConsumerClient() {
+		context = new GenericXmlApplicationContext(
+				"classpath:/rabbit-context.xml");
+		template = context.getBean(AmqpTemplate.class);
+
+	}
+
+	public Serializable getMessage(String queue) {
+		Serializable message = (Serializable) template.receiveAndConvert("myqueue");
+		return message;
+
+	}
+}

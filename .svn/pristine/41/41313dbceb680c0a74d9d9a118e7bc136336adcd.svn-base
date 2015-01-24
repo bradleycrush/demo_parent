@@ -1,0 +1,35 @@
+package org.component_factory;
+
+import org.event_manager.api.EventUtils;
+import org.event_manager.events.Component;
+import org.event_manager.events.Event;
+
+public class EventDisambiguator{
+
+	public void disambiguate(Event event) {
+
+		// Compare event to component context
+		Component context = EventUtils.getComponentContext(event.getTopic());
+		Component component = new Component();
+		component.setAssociatedEmotions(event.getEmotion());
+		component.setTopic(event.getTopic());
+
+		Component updateComponent = null;
+
+		// Compare the new component to the context. Decide if we need to update context
+		if (context != null) {
+			if (!component.equals(context)) {
+				updateComponent = component;
+			}
+		} else{
+			updateComponent = component;
+			
+		}
+
+		if (updateComponent != null) {
+			EventUtils.updateComponentContext(component);
+			System.out.println("Updated Component: "+ updateComponent.getTopic() + " Emotion:" + updateComponent.getAssociatedEmotion().toString());
+		}
+	}
+
+}

@@ -1,0 +1,59 @@
+package org.event_manager.events;
+
+import java.io.Serializable;
+
+import org.event_manager.events.Event.Emotion;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+public class Component implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	
+	private String topic;
+	
+	private Emotion associatedEmotion;
+	
+	public Component(){
+		
+	}
+	
+public Component(String topic, Emotion emotion){
+		this.topic = topic;
+		this.associatedEmotion = emotion;
+	}
+	
+	public Component(DBObject obj){
+		this.topic = (String) obj.get("category");
+		this.associatedEmotion = Enum.valueOf(Event.Emotion.class,(String) obj.get("associatedEmotions"));
+		
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String category) {
+		this.topic = category;
+	}
+
+	public Emotion getAssociatedEmotion() {
+		return this.associatedEmotion;
+	}
+
+	public void setAssociatedEmotions(Emotion associatedEmotion) {
+		this.associatedEmotion = associatedEmotion;
+	}
+
+	public BasicDBObject toBasicDBObject(){
+		BasicDBObject doc = new BasicDBObject("category", this.getTopic())
+		.append("associatedEmotions", this.getAssociatedEmotion().toString());
+		return doc;
+	}
+	
+}

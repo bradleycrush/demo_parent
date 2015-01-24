@@ -1,0 +1,26 @@
+package org.message_manager.api;
+
+import org.message_manager.common.EventMessage;
+import org.message_manager.pubsub.PubSubChannelClient;
+import org.springframework.integration.endpoint.EventDrivenConsumer;
+import org.springframework.messaging.MessageHandler;
+
+public class MessageClientAPI {
+
+	private PubSubChannelClient consumer;
+	
+	public enum Queue{ Events,Components}
+	
+	public MessageClientAPI(){
+		consumer = new PubSubChannelClient();
+	}
+	
+	public boolean publish( EventMessage message){
+		//String queue = Queue.Events.toString();
+		return consumer.Send(message);
+	}
+	
+	public EventDrivenConsumer subscribe(Queue queue, MessageHandler handler){
+		return consumer.subscribe(handler);
+	}
+}

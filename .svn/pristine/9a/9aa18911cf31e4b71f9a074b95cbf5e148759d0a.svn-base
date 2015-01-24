@@ -1,0 +1,63 @@
+package org.message_manager.pubsub;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.message_manager.common.EventMessage;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.integration.endpoint.EventDrivenConsumer;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.SubscribableChannel;
+
+public class PubSubChannelClient {
+
+	private final ApplicationContext context;
+	private final AmqpTemplate template;
+	private final SubscribableChannel channel;
+	private static Map<MessageHandler, EventDrivenConsumer> subscribers = new HashMap<MessageHandler, EventDrivenConsumer>();
+
+	public PubSubChannelClient() {
+		context = new GenericXmlApplicationContext(
+				"classpath:/rabbit-context.xml");
+		template = context.getBean(AmqpTemplate.class);
+		channel = context.getBean("subscribableChannel",
+				SubscribableChannel.class);
+
+	}
+
+	public boolean subscribe(MessageHandler handler) {
+		boolean result = false;
+		if (!subscribers.containsKey(handler)) {
+			subscribers.put(handler, new EventDrivenConsumer(channel, handler));
+			result = true;
+		}
+
+		return result;
+
+	}
+
+	public boolean unsubcribe(MessageHandler handler) {
+		boolean result = false;
+
+		if (subscribers.containsKey(handler)) {
+			subscribers.get(handler).stop();
+			subscribers.remove(handler);
+			result = true;
+		}
+
+		return result;
+	}
+
+	public boolean Send(EventMessage message) {
+		return channel.send(message);
+	}
+
+	public Serializable getMessage(String queue) {
+		Serializable message = (Serializable) template.receiveAndConvert(queue);
+		return message;
+
+	}
+}

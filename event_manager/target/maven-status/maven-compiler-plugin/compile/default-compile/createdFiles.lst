@@ -1,0 +1,7 @@
+org/event_manager/events/Event$Emotion.class
+org/event_manager/events/Event.class
+org/event_manager/native_events/TwitterEvent.class
+org/event_manager/events/Component.class
+org/event_manager/api/MongoUtils.class
+org/event_manager/events/Event$Source.class
+org/event_manager/api/MongoClientInstance.class

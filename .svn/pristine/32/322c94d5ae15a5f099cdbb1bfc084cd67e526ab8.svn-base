@@ -1,0 +1,277 @@
+package org.event_manager.api;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.event_manager.events.Component;
+import org.event_manager.events.Event;
+import org.event_manager.events.Event.Source;
+import org.event_manager.native_events.TwitterEvent;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+/**
+ * Mongo Access Utilitiy Class
+ * @author ubuntu
+ *
+ */
+public class MongoUtils {
+
+	public static final String DATABASE_EVENT_DEMO = "EventDemo";
+	public static final String DATABASE_COLLECTION_EVENT_CONTEXT = "EventContext";
+	public static final String DATABASE_COLLECTION_COMPONENT_CONTEXT = "ComponentContext";
+	public static final String DATABASE_COLLECTION_EVENT = "Events";
+	public static final String DATABASE_COLLECTION_COMPONENT = "Components";
+	public static final String DATABASE_COLLECTION_TWITTER_EVENT = "TwitterEvents";
+
+	/**
+	 * Delete a collection
+	 * @param collection
+	 */
+	public static void deleteCollection(String collection) {
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		db.getCollection(collection).drop();
+	}
+
+	/**
+	 * Add an event
+	 * @param event
+	 * @param collection
+	 */
+	private static void addEvent(Event event, String collection) {
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		BasicDBObject doc = event.toBasicDBObject();
+		db.getCollection(collection).insert(doc);
+	}
+	
+	/**
+	 * Add a component
+	 * @param component
+	 * @param collection
+	 */
+	private static void addComponent(Component component, String collection) {
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		BasicDBObject doc = component.toBasicDBObject();
+		db.getCollection(collection).insert(doc);
+	}
+
+	/**
+	 * Add a component
+	 * @param component
+	 */
+	public static void addComponent(Component component){
+		addComponent(component, DATABASE_COLLECTION_COMPONENT);
+	}
+	
+	/**
+	 * Add an Event
+	 * @param event
+	 */
+	public static void addEvent(Event event) {
+		addEvent(event, DATABASE_COLLECTION_EVENT);
+	}
+	
+	/**
+	 * Update or add the event into the event context
+	 * @param event
+	 */
+	public static void updateEventContext(Event event){
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		BasicDBObject doc = event.toBasicDBObject();
+		Event context = getEventContext(event.getAuthor());
+		if (context != null){
+			db.getCollection(DATABASE_COLLECTION_EVENT_CONTEXT).findAndModify(context.toBasicDBObject(),doc);
+		} else{
+			addEvent(event, DATABASE_COLLECTION_EVENT_CONTEXT);
+		}
+	}
+	
+	/**
+	 * Update or add the component into the component context
+	 * @param component
+	 */
+	public static void updateComponentContext(Component component){
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		Component context = getComponentContext(component.getTopic());
+		if (context != null){
+			db.getCollection(DATABASE_COLLECTION_COMPONENT_CONTEXT).update(context.toBasicDBObject(),component.toBasicDBObject());
+		} else{
+			addComponent(component, DATABASE_COLLECTION_COMPONENT_CONTEXT);
+		}
+	}
+
+	/**
+	 * Get the current context for this topic. Returns null if no context
+	 * @param topic
+	 * @return
+	 */
+	public static Component getComponentContext(String topic) {
+		Component contextComponent = null;
+
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		DBCollection coll = db
+				.getCollection(DATABASE_COLLECTION_COMPONENT_CONTEXT);
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("topic", topic);
+		DBObject obj = coll.findOne(query);
+		if (obj != null) {
+			contextComponent = new Component(obj);
+		}
+		return contextComponent;
+	}
+
+	/**
+	 * Gets the event context for this author. Returns null if no context
+	 * @param author
+	 * @return
+	 */
+	public static Event getEventContext(String author) {
+		Event context = null;
+
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		DBCollection coll = db.getCollection(DATABASE_COLLECTION_EVENT_CONTEXT);
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("author", author);
+		DBObject obj = coll.findOne(query);
+		if (obj != null) {
+			context = new Event(obj);
+		}
+		return context;
+	}
+
+	/**
+	 * Get all events by author and source
+	 * @param author
+	 * @param source
+	 * @return
+	 */
+	public static List<Event> getEventByAuthorAndSource(String author,
+			Source source) {
+		List<Event> events = new ArrayList<Event>();
+
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		DBCollection coll = db.getCollection(DATABASE_COLLECTION_EVENT);
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("author", author);
+		query.put("source", source.toString());
+		DBCursor cursor2 = coll.find(query);
+		// set index on a field
+
+		try {
+			while (cursor2.hasNext()) {
+				DBObject obj = cursor2.next();
+				events.add(new Event(obj));
+			}
+		} finally {
+			cursor2.close();
+		}
+		return events;
+	}
+
+	/**
+	 * Gets all twitter events by username
+	 * @param username
+	 * @return
+	 */
+	public static List<TwitterEvent> getTwitterEventByUsername(String username) {
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+		List<TwitterEvent> events = new ArrayList<TwitterEvent>();
+
+		DBCollection coll = db.getCollection(DATABASE_COLLECTION_TWITTER_EVENT);
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("username", username);
+		DBCursor cursor2 = coll.find(query);
+		// set index on a field
+
+		try {
+			while (cursor2.hasNext()) {
+				DBObject obj = cursor2.next();
+				events.add(new TwitterEvent(obj));
+			}
+		} finally {
+			cursor2.close();
+		}
+		return events;
+	}
+
+	/**
+	 * Gets all twitter event by date
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public static List<TwitterEvent> getTwitterEventByDate(Date startDate,
+			Date endDate) {
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+		List<TwitterEvent> events = new ArrayList<TwitterEvent>();
+
+		// BasicDBObject query = new BasicDBObject("tweetDate", );
+		DBCollection coll = db.getCollection(DATABASE_COLLECTION_TWITTER_EVENT);
+		BasicDBObject query = new BasicDBObject();
+		query.put("tweetDate", BasicDBObjectBuilder.start("$gte", startDate)
+				.add("$lte", endDate).get());
+		DBCursor cursor2 = coll.find(query);
+		// set index on a field
+
+		try {
+			while (cursor2.hasNext()) {
+				DBObject obj = cursor2.next();
+				TwitterEvent event = new TwitterEvent(obj);
+				events.add(event);
+			}
+		} finally {
+			cursor2.close();
+		}
+		return events;
+	}
+
+	/**
+	 * Add a twitter event to the collection
+	 * @param event
+	 */
+	public static void addTwitterEvent(TwitterEvent event) {
+		MongoClient mongoClient = MongoClientInstance.getInstance();
+		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
+
+		BasicDBObject doc = new BasicDBObject("hashtag", event.getHashtag())
+				.append("tweetId", event.getTweetId())
+				.append("tweetDate", event.getTweetDate())
+				.append("username", event.getUsername())
+				.append("userId", event.getUserId())
+				.append("source", event.getSource().toString())
+				.append("languageCode", event.getLanguageCode())
+				.append("message", event.getMessage())
+				.append("retweetUser", event.getRetweetUser());
+		db.getCollection(DATABASE_COLLECTION_TWITTER_EVENT).insert(doc);
+
+	}
+}

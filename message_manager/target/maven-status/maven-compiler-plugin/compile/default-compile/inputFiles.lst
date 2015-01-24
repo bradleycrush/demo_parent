@@ -1,0 +1,5 @@
+/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/message_manager/src/main/java/org/message_manager/common/EventMessage.java
+/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/message_manager/src/main/java/org/message_manager/api/MessageClientAPI.java
+/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/message_manager/src/main/java/org/message_manager/common/RabbitConfiguration.java
+/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/message_manager/src/main/java/org/message_manager/common/ObjectSerializer.java
+/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/message_manager/src/main/java/org/message_manager/pubsub/PubSubChannelClient.java

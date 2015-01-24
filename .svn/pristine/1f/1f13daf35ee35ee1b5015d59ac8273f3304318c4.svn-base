@@ -1,0 +1,118 @@
+package org.event_manager.api;
+
+import static org.junit.Assert.*;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+
+import org.event_manager.events.Event;
+import org.event_manager.events.Event.Emotion;
+import org.event_manager.events.Event.Source;
+import org.event_manager.native_events.TwitterEvent;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class EventUtilsTest {
+
+	@Before
+	public void before(){
+
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_TWITTER_EVENT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_EVENT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_EVENT_CONTEXT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_COMPONENT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_COMPONENT_CONTEXT);
+	}
+	
+	@After
+	public void after(){
+
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_TWITTER_EVENT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_EVENT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_EVENT_CONTEXT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_COMPONENT);
+		MongoUtils.deleteCollection(MongoUtils.DATABASE_COLLECTION_COMPONENT_CONTEXT);
+	}
+	
+	@Test
+	public void twitterEventTest() throws ParseException {
+
+		String hashtag = "hashtag";
+		String languageCode = "EN";
+		String message = "test";
+		String retweetUser = "rtw";
+
+		String source = "source";
+
+		Date tweetDate = TwitterEvent.TWITTER_DATE_FORMAT
+				.parse("Sat Aug 16 15:26:10 UTC 2014");
+		Date tweetDate2 = TwitterEvent.TWITTER_DATE_FORMAT
+				.parse("Sat Aug 16 21:26:10 UTC 2014");
+		long tweetId = 123123;
+		String username = "user0";
+		long userId = 234324234;
+
+		TwitterEvent event = new TwitterEvent();
+		event.setHashtag(hashtag);
+		event.setLanguageCode(languageCode);
+		event.setMessage(message);
+		event.setRetweetUser(retweetUser);
+		event.setSource(source);
+		event.setTweetDate(tweetDate);
+		event.setTweetId(tweetId);
+		event.setUserId(userId);
+		event.setUsername(username);
+
+		TwitterEvent event2 = new TwitterEvent();
+		event2.setHashtag(hashtag);
+		event2.setLanguageCode(languageCode);
+		event2.setMessage(message);
+		event2.setRetweetUser(retweetUser);
+		event2.setSource(source);
+		event2.setTweetDate(tweetDate2);
+		event2.setTweetId(tweetId);
+		event2.setUserId(userId);
+		event2.setUsername(username);
+
+		MongoUtils.addTwitterEvent(event);
+		MongoUtils.addTwitterEvent(event2);
+
+		Date startDate = TwitterEvent.TWITTER_DATE_FORMAT
+				.parse("Sat Aug 16 12:26:10 UTC 2014");
+		Date endDate = TwitterEvent.TWITTER_DATE_FORMAT
+				.parse("Sat Aug 16 19:26:10 UTC 2014");
+
+		List<TwitterEvent> events = MongoUtils.getTwitterEventByDate(startDate,
+				endDate);
+
+		assertEquals(1, events.size());
+
+
+		Date endDate2 =  TwitterEvent.TWITTER_DATE_FORMAT.parse("Sat Aug 16 23:26:10 UTC 2014");
+		
+		List<TwitterEvent> events2 = MongoUtils.getTwitterEventByDate(startDate,
+				endDate2);
+
+		assertEquals(2, events2.size());
+		
+		assertEquals(2, MongoUtils.getTwitterEventByUsername(username).size());
+		assertEquals(0, MongoUtils.getTwitterEventByUsername("fake").size());
+		
+		String author = "auth";
+		
+		Event event3 = new Event();
+		event3.setAuthor(author);
+		event3.setDate(new Date());
+		event3.setEmotion(Emotion.DontLike);
+		event3.setSource(Source.Twitter);
+		event3.setTopic("Hottub");
+		
+		MongoUtils.addEvent(event3);
+		
+		assertNull(MongoUtils.getEventContext(author));
+		MongoUtils.updateEventContext(event3);
+		assertEquals(event3.getAuthor(), MongoUtils.getEventContext(author).getAuthor());
+	}
+}

@@ -1,0 +1,28 @@
+package org.component_factory.engine;
+
+import org.component_factory.EventConsumer;
+import org.message_manager.api.MessageClientAPI;
+import org.message_manager.api.MessageClientAPI.Queue;
+
+public class ComponentFactoryEngine {
+
+	public static void main(String args[]) {
+		System.out.println("Started Engine");
+		
+		MessageClientAPI client = new MessageClientAPI();
+		
+		client.subscribe(Queue.Events, new EventConsumer());
+		
+		boolean isRunning = true;
+		
+		while (isRunning){
+			try{
+			Thread.sleep(1000);
+			} catch (Exception ex)
+			{
+				
+			}
+		}
+	}
+
+}

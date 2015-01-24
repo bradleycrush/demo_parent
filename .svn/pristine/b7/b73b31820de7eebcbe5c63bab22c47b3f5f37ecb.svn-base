@@ -1,0 +1,54 @@
+package org.event_factory.beans;
+
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.event_manager.native_events.TwitterEvent;
+import org.message_manager.api.MessageClientAPI;
+import org.message_manager.api.MessageClientAPI.Queue;
+import org.message_manager.common.EventMessage;
+import org.springframework.messaging.MessageHeaders;
+
+public class EventCreator {
+
+	MessageClientAPI messageClient = new MessageClientAPI();
+	
+	public void handle(String message) {
+
+		String[] params = message.split("\n");
+
+		TwitterEvent event = new TwitterEvent();
+		event.setHashtag(params[0]);
+		try {
+			event.setTweetDate(TwitterEvent.TWITTER_DATE_FORMAT
+					.parse(params[1]));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		event.setUsername(params[2]);
+		event.setUserId(Long.parseLong(params[3]));
+		event.setSource(params[4]);
+		event.setTweetId(Long.parseLong(params[5]));
+		event.setLanguageCode(params[6]);
+		event.setMessage(params[7]);
+
+		if (event.getMessage().startsWith("RT")) {
+			event.setRetweetUser(event.getMessage().substring(
+					event.getMessage().indexOf("@") + 1,
+					event.getMessage().indexOf(":")));
+		}
+
+		
+		// Add message to persistence
+		
+		Map<String,Object> headers = new HashMap<String,Object>();
+		headers.put("destination", Queue.Events);
+		EventMessage eventMessage = new EventMessage(headers,event);
+		
+		// Send event
+		messageClient.publish(eventMessage );
+		System.out.println(event.toJson());
+	}
+}

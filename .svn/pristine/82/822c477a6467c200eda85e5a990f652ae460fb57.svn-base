@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:si="http://www.springframework.org/schema/integration"
+	xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+	xmlns:int-event="http://www.springframework.org/schema/integration/event"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/amqp http://www.springframework.org/schema/integration/amqp/spring-integration-amqp-2.1.xsd
+http://www.springframework.org/schema/integration/xml http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+http://www.springframework.org/schema/rabbit
+           http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+http://www.springframework.org/schema/integration/amqp 
+http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd   
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<rabbit:connection-factory id="connectionFactory" username="events" password="events" host="localhost"/>
+
+	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
+
+	<rabbit:admin connection-factory="connectionFactory" />
+
+<!--  	<rabbit:queue name="Events" />
+	<rabbit:queue name="Components" />
+-->
+	<int-amqp:publish-subscribe-channel
+		id="pubSubChannel" acknowledge-mode="AUTO" connection-factory="connectionFactory" receive-timeout="10000" recovery-interval="10000">
+	</int-amqp:publish-subscribe-channel>
+
+</beans>

@@ -1,0 +1,26 @@
+package org.message_manager.api;
+
+import java.io.Serializable;
+
+import org.message_manager.consumer.ConsumerClient;
+import org.message_manager.publisher.PublisherClient;
+
+public class MessagingAPI {
+
+	private ConsumerClient consumer;
+	private PublisherClient publisher;
+	
+	private enum Queue{ Events,Components}
+	
+	public MessagingAPI(){
+		consumer = new ConsumerClient();
+		publisher = new PublisherClient();
+	}
+	
+	public boolean publish(Serializable obj){
+		String queue = Queue.Events.toString();
+		return publisher.Send(queue, obj);
+	}
+	
+	//public boolean subscribe(Queue queue, )
+}

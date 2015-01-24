@@ -1,0 +1,37 @@
+package org.message_manager.api;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+import org.message_manager.pubsub.PubSubChannelClient;
+
+import com.rabbitmq.client.QueueingConsumer;
+
+/**
+ * Allows for subscribing and sending messages
+ * @author ubuntu
+ *
+ */
+public class MessageClientAPI {
+
+	private PubSubChannelClient consumer;
+	
+	public enum Queue{ Events,Components}
+	
+	public MessageClientAPI() {
+		try {
+			consumer = new PubSubChannelClient();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean publish( Serializable message) throws IOException{
+		return consumer.Send(message);
+	}
+	
+	public QueueingConsumer subscribe(Queue queue) throws IOException{
+		return consumer.subscribe( queue);
+	}
+}

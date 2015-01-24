@@ -1,0 +1,28 @@
+package org.component_factory.engine;
+
+import org.component_factory.EventConsumer;
+import org.message_manager.api.MessageClientAPI;
+import org.message_manager.api.MessageClientAPI.Queue;
+import org.springframework.integration.endpoint.EventDrivenConsumer;
+
+public class ComponentFactoryEngine {
+
+	public static void main(String args[]) {
+		System.out.println("Started Engine");
+		
+		MessageClientAPI client = new MessageClientAPI();
+		
+		EventDrivenConsumer consumer =client.subscribe(Queue.Events, new EventConsumer());
+		
+		
+		while (consumer.isRunning()){
+			try{
+			Thread.sleep(100);
+			} catch (Exception ex)
+			{
+				System.out.println(ex.getMessage());
+			}
+		}
+	}
+
+}

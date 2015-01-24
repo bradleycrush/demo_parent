@@ -1,0 +1,86 @@
+package org.event_manager.events;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
+public class Event {
+	
+
+	public static SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("yyyy-dd-MM'T'HH:mm:ss'Z'");
+	
+	
+	public enum Emotion{
+		Like, DontLike
+	}
+	
+	public enum Source{
+		Twitter
+	}
+	
+	
+	private String topic;
+	private Date date;
+	private Source source;
+	private String author;
+	private String category;
+	private String message;
+	private Emotion emotion;
+	public String getTopic() {
+		return topic;
+	}
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	public Source getSource() {
+		return source;
+	}
+	public void setSource(Source source) {
+		this.source = source;
+	}
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public Emotion getEmotion() {
+		return emotion;
+	}
+	public void setEmotion(Emotion emotion) {
+		this.emotion = emotion;
+	}
+	
+	public String toJson(){	
+		  JsonObject obj = new JsonObject();
+		  obj.add("topic", new JsonPrimitive(topic));
+		  obj.add("date", new JsonPrimitive(EVENT_DATE_FORMAT.format(date)));
+		  obj.add("author", new JsonPrimitive(author));
+		  obj.add("category", new JsonPrimitive(source.toString()));
+		  obj.add("message", new JsonPrimitive(message));
+		  obj.add("emotion", new JsonPrimitive(emotion.toString()));
+		
+		return obj.toString();
+	}
+
+}

@@ -1,0 +1,82 @@
+package org.event_manager.events;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import org.event_manager.events.Event.Emotion;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+public class Component implements Comparable<Component>, Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private String topic;
+	
+	private Emotion associatedEmotion;
+	
+	private Date componentUpdateDate;
+	
+	public Component(){
+		componentUpdateDate = new Date();
+	}
+	
+public Component(String topic, Emotion emotion, Date date){
+		this.topic = topic;
+		this.associatedEmotion = emotion;
+		this.componentUpdateDate = date;
+	}
+	
+	public Component(DBObject obj){
+		this.topic = (String) obj.get("topic");
+		this.associatedEmotion = Enum.valueOf(Event.Emotion.class,(String) obj.get("associatedEmotions"));
+		this.componentUpdateDate = (Date) obj.get("date");
+	}
+
+	
+	public Date getComponentUpdateDate() {
+		return componentUpdateDate;
+	}
+
+	public void setComponentUpdateDate(Date componentUpdateDate) {
+		this.componentUpdateDate = componentUpdateDate;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String category) {
+		this.topic = category;
+	}
+
+	public Emotion getAssociatedEmotion() {
+		return this.associatedEmotion;
+	}
+
+	public void setAssociatedEmotions(Emotion associatedEmotion) {
+		this.associatedEmotion = associatedEmotion;
+	}
+
+	public BasicDBObject toBasicDBObject(){
+		BasicDBObject doc = new BasicDBObject("topic", this.getTopic())
+		.append("associatedEmotions", this.getAssociatedEmotion().toString())
+		.append("componentUpdateDate", this.componentUpdateDate)
+		.append("date", this.componentUpdateDate);
+		return doc;
+	}
+
+	@Override
+	public int compareTo(Component o) {
+		return this.topic.compareTo(o.getTopic());
+	}
+	
+	public boolean equals(Component component){
+		return (this.topic.equals(component.getTopic())&& (this.getAssociatedEmotion().equals(this.associatedEmotion)));
+	}
+	
+}

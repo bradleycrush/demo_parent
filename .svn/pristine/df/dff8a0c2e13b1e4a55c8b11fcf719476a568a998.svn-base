@@ -1,0 +1,8 @@
+package org.event_factory.beans;
+
+public class EventCreator {
+
+	public void handle(String message){
+		System.out.println(message);
+	}
+}
