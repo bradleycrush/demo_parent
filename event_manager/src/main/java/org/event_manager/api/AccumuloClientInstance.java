@@ -21,7 +21,7 @@ public class AccumuloClientInstance {
 			accumuloClient = instances.getConnector("root", token);
 		} catch (AccumuloException | AccumuloSecurityException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace();   
 		}
 	   }
 	   return accumuloClient;

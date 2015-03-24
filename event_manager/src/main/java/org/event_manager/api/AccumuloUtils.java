@@ -4,6 +4,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.BatchWriterConfig;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.hadoop.io.Text;
 import org.event_manager.events.Component;
 import org.event_manager.events.Event;
 import org.event_manager.events.Event.Source;
@@ -24,6 +35,7 @@ public class AccumuloUtils {
 	 * @param collection
 	 */
 	public static void deleteCollection(String collection) {
+		
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //
@@ -34,8 +46,38 @@ public class AccumuloUtils {
 	 * Add an event
 	 * @param event
 	 * @param collection
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	private static void addEvent(Event event, String collection) {
+	private static void addEvent(Event event, String collection) throws AccumuloException, AccumuloSecurityException, TableExistsException {
+		
+		Connector aClient = AccumuloClientInstance.getInstance();
+		BatchWriter wr = null;
+		
+		// Attempt to write -exception based programming
+		while(true){
+		   try {
+			   wr = aClient.createBatchWriter(DATABASE_EVENT_DEMO, new BatchWriterConfig());
+		    break;
+		   } catch (TableNotFoundException e) {
+		  	  // Create Table and retry
+			  aClient.tableOperations().create(DATABASE_EVENT_DEMO);
+		   }
+		}
+		
+      Mutation m = new Mutation(event.getAuthor());		
+      Text family = new Text(event.getDate().toString());
+      Text qual = new Text(event.getSource().name());
+      Value value = new Value(event.toJson().getBytes());
+      ColumnVisibility visibility = new ColumnVisibility("public");
+      
+      m.put(family, qual,visibility, value );
+      
+      wr.addMutation(m);
+      wr.close();
+      
+//		verifyTable(aClient, DATABASE_EVENT_DEMO);
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //
@@ -43,6 +85,11 @@ public class AccumuloUtils {
 //		db.getCollection(collection).insert(doc);
 	}
 	
+//	private static void verifyTable(Connector conn, String tableName) {
+//		if(conn.tableOperations().exists(tableName)
+//		
+//	}
+
 	/**
 	 * Add a component
 	 * @param component
@@ -67,8 +114,11 @@ public class AccumuloUtils {
 	/**
 	 * Add an Event
 	 * @param event
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public static void addEvent(Event event) {
+	public static void addEvent(Event event) throws AccumuloException, AccumuloSecurityException, TableExistsException {
 		addEvent(event, DATABASE_COLLECTION_EVENT);
 	}
 	
