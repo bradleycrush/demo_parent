@@ -1,5 +1,7 @@
 package org.event_manager.api;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -295,8 +297,40 @@ public class AccumuloUtils {
 	/**
 	 * Add a twitter event to the collection
 	 * @param event
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public static void addTwitterEvent(TwitterEvent event) {
+	public static void addTwitterEvent(TwitterEvent event) throws AccumuloException, AccumuloSecurityException, TableExistsException {
+		//ByteArrayOutputStream os = new ByteArrayOutputStream();
+		//os.w
+		byte[] rowId = event.getUsername().getBytes();
+		byte[] familyB = event.getTweetDate().toString().getBytes();
+		
+		Connector aClient = AccumuloClientInstance.getInstance();
+		BatchWriter wr = null;
+		
+		// Attempt to write -exception based programming
+		while(true){
+		   try {
+			   wr = aClient.createBatchWriter(DATABASE_COLLECTION_TWITTER_EVENT, new BatchWriterConfig());
+		    break;
+		   } catch (TableNotFoundException e) {
+		  	  // Create Table and retry
+			  aClient.tableOperations().create(DATABASE_COLLECTION_TWITTER_EVENT);
+		   }
+		}
+		
+      Mutation m = new Mutation(rowId);		
+      Text family = new Text(event.getTweetDate().toString());
+      Text qual = new Text(event.getSource());
+      Value value = new Value(event.toJson().getBytes());
+      ColumnVisibility visibility = new ColumnVisibility("public");
+      
+      m.put(family, qual,visibility, value );
+      
+      wr.addMutation(m);
+      wr.close();
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //

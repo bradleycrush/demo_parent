@@ -1,6 +1,6 @@
 package org.component_factory;
 
-import org.event_manager.api.MongoUtils;
+import org.event_manager.api.AccumuloUtils;
 import org.event_manager.events.Component;
 import org.event_manager.events.Event;
 import org.event_manager.events.Event.Emotion;
@@ -19,14 +19,14 @@ public class EventDisambiguator{
 	public void disambiguate(Event event) {
 
 		// Compare event to component context
-		Component context = MongoUtils.getComponentContext(event.getTopic());
+		Component context = AccumuloUtils.getComponentContext(event.getTopic());
 		
 		Component component = new Component();
 		component.setAssociatedEmotions(event.getEmotion());
 		component.setTopic(event.getTopic());
 		
 		// Add the component to the component collection
-		MongoUtils.addComponent(component);
+		AccumuloUtils.addComponent(component);
 		
 		
 		Component updateComponent = null;
@@ -45,7 +45,7 @@ public class EventDisambiguator{
 
 		// Update the component context
 		if (updateComponent != null) {
-			MongoUtils.updateComponentContext(component);
+			AccumuloUtils.updateComponentContext(component);
 			System.out.println("Updated Component: "+ updateComponent.getTopic() + " Emotion:" + updateComponent.getAssociatedEmotion().toString());
 		}
 	}
