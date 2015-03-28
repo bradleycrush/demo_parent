@@ -16,7 +16,7 @@ http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.x
 
 
 	<rabbit:connection-factory id="connectionFactory"
-		username="events" password="events" host="localhost" />
+		username="guest" password="guest" host="localhost" />
 
 	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
 
