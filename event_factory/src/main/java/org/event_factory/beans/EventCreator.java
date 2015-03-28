@@ -3,7 +3,10 @@ package org.event_factory.beans;
 import java.io.IOException;
 import java.text.ParseException;
 
-import org.event_manager.api.MongoUtils;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.TableExistsException;
+import org.event_manager.api.AccumuloUtils;
 import org.event_manager.events.Event;
 import org.event_manager.events.Event.Emotion;
 import org.event_manager.events.Event.Source;
@@ -67,8 +70,11 @@ public class EventCreator {
 	/**
 	 * Called on changes in the twitter stream
 	 * @param message
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public void handle(String message) {
+	public void handle(String message) throws AccumuloException, AccumuloSecurityException, TableExistsException {
 		String[] params = message.split("\n");
 
 		TwitterEvent event = new TwitterEvent();
@@ -93,7 +99,7 @@ public class EventCreator {
 		}
 
 		// Add message to persistence
-		MongoUtils.addTwitterEvent(event);
+		AccumuloUtils.addTwitterEvent(event);
 
 		// Convert to Event
 		Event newEvent = new Event();
@@ -105,12 +111,12 @@ public class EventCreator {
 		newEvent.setTopic(event.getHashtag());
 
 		// Check if this new event affects the event context
-		Event context = MongoUtils.getEventContext(event.getUsername());
+		Event context = AccumuloUtils.getEventContext(event.getUsername());
 
 		// IF this is an update or new event
 		if (context == null || emotionChanged(context.getEmotion(), newEvent.getEmotion())
 				|| newEvent.getDate().compareTo(context.getDate()) > 0) {
-			MongoUtils.updateEventContext(newEvent);
+			AccumuloUtils.updateEventContext(newEvent);
 
 			System.out.println("New Event- " + newEvent.toJson());
 
