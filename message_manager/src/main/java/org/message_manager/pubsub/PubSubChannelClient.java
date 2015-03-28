@@ -36,8 +36,8 @@ public class PubSubChannelClient {
 		
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost("localhost");
-		factory.setUsername("events");
-		factory.setPassword("events");
+		factory.setUsername("guest");
+		factory.setPassword("guest");
 	    connection = factory.newConnection();
 	    channel = connection.createChannel();	    
 	}
