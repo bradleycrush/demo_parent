@@ -4,26 +4,31 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mongodb.DBObject;
 
-public class TwitterEvent implements Serializable{
+public class TwitterEvent implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private final SimpleDateFormat dateFormat;
 
-	public static SimpleDateFormat TWITTER_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
-	
-	public TwitterEvent(){
-		
+	public static String TWITTER_DATE_FORMAT = "EEE MMM dd HH:mm:ss z yyyy";
+
+	public TwitterEvent() {
+		dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+
 	}
-	
-	
-	public TwitterEvent(DBObject obj){
-		this.tweetId =(long) obj.get("tweetId");
+
+	public TwitterEvent(DBObject obj) {
+		dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+
+		this.tweetId = (long) obj.get("tweetId");
 		this.tweetDate = (Date) obj.get("tweetDate");
 		this.hashtag = (String) obj.get("hashTag");
 		this.languageCode = (String) obj.get("languageCode");
@@ -33,18 +38,17 @@ public class TwitterEvent implements Serializable{
 		this.userId = ((long) obj.get("userId"));
 		this.username = ((String) obj.get("username"));
 	}
-	
-	private String hashtag;
-	private long tweetId;
-	private Date tweetDate;
-	private String username;
-	private long userId;
-	private String source;
-	private String languageCode;
-	private String message;
+
+	private String hashtag = "";
+	private long tweetId = -1;
+	private Date tweetDate = null;
+	private String username = "";
+	private long userId = -1;
+	private String source = "";
+	private String languageCode = "";
+	private String message = "";
 	private String retweetUser = "";
 
-	
 	public String getHashtag() {
 		return hashtag;
 	}
@@ -117,30 +121,34 @@ public class TwitterEvent implements Serializable{
 		this.languageCode = languageCode;
 	}
 
-	public String toJson(){	
-		  JsonObject obj = new JsonObject();
-		  obj.add("hashtag", new JsonPrimitive(hashtag));
-		  obj.add("tweetId", new JsonPrimitive(tweetId));
-		  obj.add("tweetDate", new JsonPrimitive(TWITTER_DATE_FORMAT.format(tweetDate)));
-		  obj.add("username", new JsonPrimitive(username));
-		  obj.add("userId", new JsonPrimitive(userId));
-		  obj.add("source", new JsonPrimitive(source));
-		  obj.add("languageCode", new JsonPrimitive(languageCode));
-		  obj.add("message", new JsonPrimitive(message));
-		  obj.add("retweetUser", new JsonPrimitive(retweetUser));
-		
+	public String toJson() {
+		JsonObject obj = new JsonObject();
+
+		String date = "";
+
+		if (tweetDate!=null) {
+
+			date = dateFormat.format(tweetDate);
+		}
+
+		obj.add("hashtag", new JsonPrimitive(hashtag));
+		obj.add("tweetId", new JsonPrimitive(tweetId));
+		obj.add("username", new JsonPrimitive(username));
+		obj.add("tweetDate", new JsonPrimitive(date));
+		obj.add("userId", new JsonPrimitive(userId));
+		obj.add("source", new JsonPrimitive(source));
+		obj.add("languageCode", new JsonPrimitive(languageCode));
+		obj.add("message", new JsonPrimitive(message));
+		obj.add("retweetUser", new JsonPrimitive(retweetUser));
+
 		return obj.toString();
 	}
 
-	
-	
-	/*
-	 * { "hashtag":"hashtag_value", "date":"date_of_tweet_as_long",
-	 * "user":"user_name", "message":"tweet_message", "retweet_user",
-	 * "user_name" }
-	 * 
-	 * Event: { "topic":"", "date":"", "source":"", "author","", "message":{
-	 * "category":"", "emotions":"", "length":"", }
-	 */
+	public static TwitterEvent createFromJson(String json) {
+		Gson gson = new GsonBuilder().setDateFormat(TWITTER_DATE_FORMAT).create(); 
+		TwitterEvent event = gson.fromJson(json, TwitterEvent.class); 
+		
+		return event;
+	}
 
 }

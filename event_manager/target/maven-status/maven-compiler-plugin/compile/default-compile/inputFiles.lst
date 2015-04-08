@@ -1,5 +1,7 @@
-/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/event_manager/src/main/java/org/event_manager/native_events/TwitterEvent.java
-/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/event_manager/src/main/java/org/event_manager/api/MongoClientInstance.java
-/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/event_manager/src/main/java/org/event_manager/api/MongoUtils.java
-/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/event_manager/src/main/java/org/event_manager/events/Event.java
-/home/ubuntu/Documents/workspace-sts-3.6.0.RELEASE/demo_parent/event_manager/src/main/java/org/event_manager/events/Component.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\native_events\TwitterEvent.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\api\MongoUtils.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\api\AccumuloClientInstance.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\api\MongoClientInstance.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\events\Event.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\events\Component.java
+C:\Users\bradl_000\git\demo_parent\event_manager\src\main\java\org\event_manager\api\AccumuloUtils.java

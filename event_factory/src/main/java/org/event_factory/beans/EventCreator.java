@@ -2,6 +2,7 @@ package org.event_factory.beans;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -77,10 +78,15 @@ public class EventCreator {
 	public void handle(String message) throws AccumuloException, AccumuloSecurityException, TableExistsException {
 		String[] params = message.split("\n");
 
+
+		SimpleDateFormat tweetDateFormat = new SimpleDateFormat(TwitterEvent.TWITTER_DATE_FORMAT);
+
+		
 		TwitterEvent event = new TwitterEvent();
+		
 		event.setHashtag(params[0]);
 		try {
-			event.setTweetDate(TwitterEvent.TWITTER_DATE_FORMAT
+			event.setTweetDate(tweetDateFormat
 					.parse(params[1]));
 		} catch (ParseException e) {
 			System.out.println("Could not parse date:" + params[1]);

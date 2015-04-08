@@ -3,6 +3,7 @@ package org.event_manager.api;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -45,10 +46,12 @@ public class EventUtilsTest {
 		String retweetUser = "rtw";
 
 		String source = "source";
+		
+		SimpleDateFormat tweetDateFormat = new SimpleDateFormat(TwitterEvent.TWITTER_DATE_FORMAT);
 
-		Date tweetDate = TwitterEvent.TWITTER_DATE_FORMAT
+		Date tweetDate = tweetDateFormat
 				.parse("Sat Aug 16 15:26:10 UTC 2014");
-		Date tweetDate2 = TwitterEvent.TWITTER_DATE_FORMAT
+		Date tweetDate2 = tweetDateFormat
 				.parse("Sat Aug 16 21:26:10 UTC 2014");
 		long tweetId = 123123;
 		String username = "user0";
@@ -79,9 +82,9 @@ public class EventUtilsTest {
 		MongoUtils.addTwitterEvent(event);
 		MongoUtils.addTwitterEvent(event2);
 
-		Date startDate = TwitterEvent.TWITTER_DATE_FORMAT
+		Date startDate = tweetDateFormat
 				.parse("Sat Aug 16 12:26:10 UTC 2014");
-		Date endDate = TwitterEvent.TWITTER_DATE_FORMAT
+		Date endDate = tweetDateFormat
 				.parse("Sat Aug 16 19:26:10 UTC 2014");
 
 		List<TwitterEvent> events = MongoUtils.getTwitterEventByDate(startDate,
@@ -90,7 +93,7 @@ public class EventUtilsTest {
 		assertEquals(1, events.size());
 
 
-		Date endDate2 =  TwitterEvent.TWITTER_DATE_FORMAT.parse("Sat Aug 16 23:26:10 UTC 2014");
+		Date endDate2 =  tweetDateFormat.parse("Sat Aug 16 23:26:10 UTC 2014");
 		
 		List<TwitterEvent> events2 = MongoUtils.getTwitterEventByDate(startDate,
 				endDate2);
