@@ -1,4 +1,0 @@
-org/message_manager/common/ObjectSerializer.class
-org/message_manager/api/MessageClientAPI$Queue.class
-org/message_manager/api/MessageClientAPI.class
-org/message_manager/pubsub/PubSubChannelClient.class
