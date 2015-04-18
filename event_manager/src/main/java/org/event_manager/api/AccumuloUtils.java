@@ -268,7 +268,7 @@ public class AccumuloUtils {
 			 familyIn = entry.getKey().getColumnFamily();
 			 qualIn = entry.getKey().getColumnQualifier();
 			 valueIn = entry.getValue(); 
-		 }
+		 }  
 		 
 		 
 		 // Now use the value to extract the actual event
