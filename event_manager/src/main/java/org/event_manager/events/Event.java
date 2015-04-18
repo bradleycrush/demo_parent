@@ -105,5 +105,9 @@ public class Event implements Serializable {
 		
 		return obj.toString();
 	}
+	
+	public String getKey(){
+		return (author + "::" + date.toString() + "::"+ source);
+	}
 
 }

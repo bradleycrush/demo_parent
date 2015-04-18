@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.event_manager.api.AccumuloUtils;
 import org.event_manager.events.Event;
 import org.event_manager.events.Event.Emotion;
@@ -74,8 +75,9 @@ public class EventCreator {
 	 * @throws TableExistsException 
 	 * @throws AccumuloSecurityException 
 	 * @throws AccumuloException 
+	 * @throws TableNotFoundException 
 	 */
-	public void handle(String message) throws AccumuloException, AccumuloSecurityException, TableExistsException {
+	public void handle(String message) throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException {
 		String[] params = message.split("\n");
 
 

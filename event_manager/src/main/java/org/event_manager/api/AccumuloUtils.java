@@ -5,16 +5,21 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.io.Text;
 import org.event_manager.events.Component;
@@ -127,9 +132,36 @@ public class AccumuloUtils {
 	/**
 	 * Update or add the event into the event context
 	 * @param event
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public static void updateEventContext(Event event){
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
+	public static void updateEventContext(Event event) throws AccumuloException, AccumuloSecurityException, TableExistsException{
+		Connector aClient = AccumuloClientInstance.getInstance();
+		BatchWriter wr = null;
+		
+		// Attempt to write -exception based programming
+		while(true){
+		   try {
+			   wr = aClient.createBatchWriter(DATABASE_COLLECTION_EVENT_CONTEXT, new BatchWriterConfig());
+		    break;
+		   } catch (TableNotFoundException e) {
+		  	  // Create Table and retry
+			  aClient.tableOperations().create(DATABASE_COLLECTION_EVENT_CONTEXT);
+		   }
+		}
+		
+      Mutation m = new Mutation(event.getAuthor());		
+      Value value = new Value(event.getKey().getBytes());
+      ColumnVisibility visibility = new ColumnVisibility("public");
+      
+      Text t = null;
+      m.put(t, t,visibility, value );
+      
+      wr.addMutation(m);
+      wr.close();
+
+		//		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //
 //		BasicDBObject doc = event.toBasicDBObject();
@@ -184,10 +216,49 @@ public class AccumuloUtils {
 	 * Gets the event context for this author. Returns null if no context
 	 * @param author
 	 * @return
+	 * @throws TableNotFoundException 
 	 */
-	public static Event getEventContext(String author) {
+	public static Event getEventContext(String author) throws TableNotFoundException {
 		Event context = null;
 
+		Connector aClient = AccumuloClientInstance.getInstance();
+		
+		 Authorizations au = new Authorizations("public");
+		 Scanner scanner = aClient.createScanner(DATABASE_COLLECTION_EVENT_CONTEXT, au);
+		 Range range = Range.exact(author);
+		 
+		 
+		 Text familyIn = null, qualIn = null, idIn = null;
+		 Value valueIn = null;
+		 
+		 for(Entry<Key, Value> entry: scanner){
+			 idIn = entry.getKey().getRow();
+			 familyIn = entry.getKey().getColumnFamily();
+			 qualIn = entry.getKey().getColumnQualifier();
+			 valueIn = entry.getValue(); 
+		 }
+		 
+		 
+		 // Now use the value to extract the actual event
+		 StringBuffer sb = new StringBuffer(valueIn.toString());
+		 String str = valueIn.toString();
+		 String[] values = str.split("::");
+		 
+		 range = Range.exact(values[0]);
+		 scanner.setRange(range);
+		 scanner.fetchColumn(new Text(values[1]), new Text(values[2]));
+		 		 
+		 Event newEvent = null;
+		 
+		 for(Entry<Key, Value> entry: scanner){
+			 valueIn = entry.getValue(); 
+			 // CONVERT TO actual event
+			 
+		 }
+
+		 
+		 scanner.close();	
+	 
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //
