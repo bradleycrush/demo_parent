@@ -103,6 +103,33 @@ public class AccumuloUtils {
 	 * @param collection
 	 */
 	private static void addComponent(Component component, String collection) {
+
+		Connector aClient = AccumuloClientInstance.getInstance();
+		BatchWriter wr = null;
+		
+		// Attempt to write -exception based programming
+		while(true){
+		   try {
+			   wr = aClient.createBatchWriter(DATABASE_COLLECTION_COMPONENT, new BatchWriterConfig());
+		    break;
+		   } catch (TableNotFoundException e) {
+		  	  // Create Table and retry
+			  aClient.tableOperations().create(DATABASE_COLLECTION_COMPONENT);
+		   }
+		}
+		
+      Mutation m = new Mutation(component.getTopic());		
+      Text family = new Text(component.getComponentUpdateDate().toString());
+      Text qual = new Text();
+      Value value = new Value(component.toJson().getBytes());
+      ColumnVisibility visibility = new ColumnVisibility("public");
+      
+      m.put(family, qual,visibility, value );
+      
+      wr.addMutation(m);
+      wr.close();
+
+				
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //
@@ -176,12 +203,39 @@ public class AccumuloUtils {
 	/**
 	 * Update or add the component into the component context
 	 * @param component
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public static void updateComponentContext(Component component){
+	public static void updateComponentContext(Component component) throws AccumuloException, AccumuloSecurityException, TableExistsException{
+
+	Connector aClient = AccumuloClientInstance.getInstance();
+	BatchWriter wr = null;
+	
+	// Attempt to write -exception based programming
+	while(true){
+	   try {
+		   wr = aClient.createBatchWriter(DATABASE_COLLECTION_COMPONENT_CONTEXT, new BatchWriterConfig());
+	    break;
+	   } catch (TableNotFoundException e) {
+	  	  // Create Table and retry
+		  aClient.tableOperations().create(DATABASE_COLLECTION_COMPONENT_CONTEXT);
+	   }
+	}
+	
+  Mutation m = new Mutation(component.getTopic());		
+  Value value = new Value(component.getKey().getBytes());
+  ColumnVisibility visibility = new ColumnVisibility("public");
+  
+  Text t = null;
+  m.put(t, t,visibility, value );
+  
+  wr.addMutation(m);
+  wr.close();
+
+		
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-
-		Component context = getComponentContext(component.getTopic());
 //		if (context != null){
 //			db.getCollection(DATABASE_COLLECTION_COMPONENT_CONTEXT).update(context.toBasicDBObject(),component.toBasicDBObject());
 //		} else{
@@ -193,10 +247,53 @@ public class AccumuloUtils {
 	 * Get the current context for this topic. Returns null if no context
 	 * @param topic
 	 * @return
+	 * @throws TableNotFoundException 
 	 */
-	public static Component getComponentContext(String topic) {
+	public static Component getComponentContext(String topic) throws TableNotFoundException {
 		Component contextComponent = null;
+		Event context = null;
 
+		Connector aClient = AccumuloClientInstance.getInstance();
+		
+		 Authorizations au = new Authorizations("public");
+		 Scanner scanner = aClient.createScanner(DATABASE_COLLECTION_COMPONENT_CONTEXT, au);
+		 Range range = Range.exact(topic);
+		 
+		 
+		 Text familyIn = null, qualIn = null, idIn = null;
+		 Value valueIn = null;
+		 
+		 for(Entry<Key, Value> entry: scanner){
+			 idIn = entry.getKey().getRow();
+			 familyIn = entry.getKey().getColumnFamily();
+			 qualIn = entry.getKey().getColumnQualifier();
+			 valueIn = entry.getValue(); 
+		 }
+		 
+		 
+		 // Now use the value to extract the actual event
+		 StringBuffer sb = new StringBuffer(valueIn.toString());
+		 String str = valueIn.toString();
+		 String[] values = str.split("::");
+		 
+		 range = Range.exact(values[0]);
+		 scanner.setRange(range);
+		 scanner.fetchColumnFamily(new Text(values[1]));
+		 		 
+		 Component comp = null;
+		 
+		 for(Entry<Key, Value> entry: scanner){
+			 valueIn = entry.getValue(); 
+			 // CONVERT TO actual component
+			 contextComponent = XXXX(valueIn.toString());
+		 }
+
+		 
+		 scanner.close();	
+
+		
+		
+		
 //		MongoClient mongoClient = MongoClientInstance.getInstance();
 //		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
 //
