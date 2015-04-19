@@ -79,4 +79,10 @@ public Component(String topic, Emotion emotion, Date date){
 		return (this.topic.equals(component.getTopic())&& (this.getAssociatedEmotion().equals(this.associatedEmotion)));
 	}
 	
+	public String getKey(){
+		// Made up of topic and date
+		return(this.getTopic() + "::" + this.getComponentUpdateDate().toString());
+		
+	}
+	
 }
