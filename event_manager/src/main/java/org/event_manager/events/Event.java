@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.SerializedName;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -17,9 +18,8 @@ public class Event implements Serializable {
 	private static final long serialVersionUID = -8035640373033517539L;
 	public static SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("yyyy-dd-MM'T'HH:mm:ss'Z'");
 	
-	
 	public enum Emotion{
-		Like, DontLike, NoOpinion
+		   @SerializedName("0")Like, @SerializedName("1")DontLike, @SerializedName("2")NoOpinion
 	}
 	
 	public enum Source{
