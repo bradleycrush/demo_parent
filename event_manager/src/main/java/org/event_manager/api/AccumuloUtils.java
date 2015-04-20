@@ -355,7 +355,7 @@ public class AccumuloUtils {
 		 
 		 for(Entry<Key, Value> entry: scanner){
 			 valueIn = entry.getValue(); 
-			 // CONVERT TO actual event
+			 Event.JSONtoEvent(valueIn.toString());
 			 
 		 }
 
