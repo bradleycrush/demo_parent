@@ -117,4 +117,8 @@ public class Component implements Comparable<Component>, Serializable {
 		return (this.topic.equals(component.getTopic())&& (this.getAssociatedEmotion().equals(this.associatedEmotion)));
 	}
 	
+	public String getKey(){
+		return (this.getTopic() + "::" + this.getComponentUpdateDate().toString());
+	}
+	
 }

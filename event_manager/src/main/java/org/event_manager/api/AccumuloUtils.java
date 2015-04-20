@@ -101,8 +101,11 @@ public class AccumuloUtils {
 	 * Add a component
 	 * @param component
 	 * @param collection
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	private static void addComponent(Component component, String collection) {
+	private static void addComponent(Component component, String collection) throws AccumuloException, AccumuloSecurityException, TableExistsException {
 
 		Connector aClient = AccumuloClientInstance.getInstance();
 		BatchWriter wr = null;
@@ -140,8 +143,11 @@ public class AccumuloUtils {
 	/**
 	 * Add a component
 	 * @param component
+	 * @throws TableExistsException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public static void addComponent(Component component){
+	public static void addComponent(Component component) throws AccumuloException, AccumuloSecurityException, TableExistsException{
 		addComponent(component, DATABASE_COLLECTION_COMPONENT);
 	}
 	
@@ -285,7 +291,7 @@ public class AccumuloUtils {
 		 for(Entry<Key, Value> entry: scanner){
 			 valueIn = entry.getValue(); 
 			 // CONVERT TO actual component
-			 contextComponent = XXXX(valueIn.toString());
+			 contextComponent = Component.JSONtoComponent(valueIn.toString());
 		 }
 
 		 
