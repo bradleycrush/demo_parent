@@ -94,7 +94,7 @@ public class Component implements Comparable<Component>, Serializable {
 		}
 
 		obj.add("topic", new JsonPrimitive(topic));
-		obj.add("associatedEmotion", new JsonPrimitive(associatedEmotion.ordinal()));
+		obj.add("associatedEmotion", new JsonPrimitive(associatedEmotion.name()));
 		obj.add("componentUpdateDate", new JsonPrimitive(date));
 		
 		return obj.toString();

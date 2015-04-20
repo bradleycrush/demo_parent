@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
@@ -16,14 +18,15 @@ public class Event implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -8035640373033517539L;
-	public static SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat("yyyy-dd-MM'T'HH:mm:ss'Z'");
+	public static String EVENT_DATE_FORMAT_STRING = "yyyy-dd-MM'T'HH:mm:ss:SSS'Z'";
+	public static SimpleDateFormat EVENT_DATE_FORMAT = new SimpleDateFormat(EVENT_DATE_FORMAT_STRING);
 	
 	public enum Emotion{
-		   @SerializedName("0")Like, @SerializedName("1")DontLike, @SerializedName("2")NoOpinion
+		   @SerializedName("Like")Like, @SerializedName("DontLike")DontLike, @SerializedName("NoOpinion")NoOpinion
 	}
 	
 	public enum Source{
-		Twitter
+		@SerializedName("Twitter")Twitter
 	}
 	
 	public Event(){
@@ -104,6 +107,13 @@ public class Event implements Serializable {
 		  obj.add("emotion", new JsonPrimitive(emotion.toString()));
 		
 		return obj.toString();
+	}
+	
+	public static Event JSONtoEvent(String json) {
+		Gson gson = new GsonBuilder().setDateFormat(EVENT_DATE_FORMAT_STRING).create(); 
+		Event event = gson.fromJson(json, Event.class); 
+		
+		return event;
 	}
 	
 	public String getKey(){
