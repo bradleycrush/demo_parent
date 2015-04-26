@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -30,7 +31,7 @@ import org.event_manager.native_events.TwitterEvent;
 
 
 public class AccumuloUtils {
-	public static final String DATABASE_EVENT_DEMO = "EventDemo";
+	//public static final String DATABASE_EVENT_DEMO = "EventDemo";
 	public static final String DATABASE_COLLECTION_EVENT_CONTEXT = "EventContext";
 	public static final String DATABASE_COLLECTION_COMPONENT_CONTEXT = "ComponentContext";
 	public static final String DATABASE_COLLECTION_EVENT = "Events";
@@ -65,11 +66,11 @@ public class AccumuloUtils {
 		// Attempt to write -exception based programming
 		while(true){
 		   try {
-			   wr = aClient.createBatchWriter(DATABASE_EVENT_DEMO, new BatchWriterConfig());
+			   wr = aClient.createBatchWriter(DATABASE_COLLECTION_EVENT, new BatchWriterConfig());
 		    break;
 		   } catch (TableNotFoundException e) {
 		  	  // Create Table and retry
-			  aClient.tableOperations().create(DATABASE_EVENT_DEMO);
+			  aClient.tableOperations().create(DATABASE_COLLECTION_EVENT);
 		   }
 		}
 		
@@ -188,7 +189,7 @@ public class AccumuloUtils {
       Value value = new Value(event.getKey().getBytes());
       ColumnVisibility visibility = new ColumnVisibility("public");
       
-      Text t = null;
+      Text t = new Text();
       m.put(t, t,visibility, value );
       
       wr.addMutation(m);
@@ -233,7 +234,7 @@ public class AccumuloUtils {
   Value value = new Value(component.getKey().getBytes());
   ColumnVisibility visibility = new ColumnVisibility("public");
   
-  Text t = null;
+  Text t = new Text();
   m.put(t, t,visibility, value );
   
   wr.addMutation(m);
@@ -253,18 +254,36 @@ public class AccumuloUtils {
 	 * Get the current context for this topic. Returns null if no context
 	 * @param topic
 	 * @return
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 * @throws TableNotFoundException 
 	 */
-	public static Component getComponentContext(String topic) throws TableNotFoundException {
+	public static Component getComponentContext(String topic) throws AccumuloException, AccumuloSecurityException  {
 		Component contextComponent = null;
 		Event context = null;
 
 		Connector aClient = AccumuloClientInstance.getInstance();
 		
+		
 		 Authorizations au = new Authorizations("public");
-		 Scanner scanner = aClient.createScanner(DATABASE_COLLECTION_COMPONENT_CONTEXT, au);
-		 Range range = Range.exact(topic);
+		 Scanner scanner = null;
+		 Range range = null;
 		 
+		while(true){
+			try {
+				scanner = aClient.createScanner(DATABASE_COLLECTION_COMPONENT_CONTEXT, au);
+				range = Range.exact(topic);
+				break;
+		    } catch (TableNotFoundException e) {
+				 // Create Table and retry
+				try {
+					aClient.tableOperations().create(DATABASE_COLLECTION_COMPONENT_CONTEXT);
+				} catch (TableExistsException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
 		 
 		 Text familyIn = null, qualIn = null, idIn = null;
 		 Value valueIn = null;
@@ -276,22 +295,24 @@ public class AccumuloUtils {
 			 valueIn = entry.getValue(); 
 		 }  
 		 
+		 if( !Objects.equals(valueIn, null)){
+
+		   // Now use the value to extract the actual event
+		   StringBuffer sb = new StringBuffer(valueIn.toString());
+		   String str = valueIn.toString();
+		   String[] values = str.split("::");
 		 
-		 // Now use the value to extract the actual event
-		 StringBuffer sb = new StringBuffer(valueIn.toString());
-		 String str = valueIn.toString();
-		 String[] values = str.split("::");
-		 
-		 range = Range.exact(values[0]);
-		 scanner.setRange(range);
-		 scanner.fetchColumnFamily(new Text(values[1]));
+		   range = Range.exact(values[0]);
+		   scanner.setRange(range);
+		   scanner.fetchColumnFamily(new Text(values[1]));
 		 		 
-		 Component comp = null;
+		   Component comp = null;
 		 
-		 for(Entry<Key, Value> entry: scanner){
+		   for(Entry<Key, Value> entry: scanner){
 			 valueIn = entry.getValue(); 
 			 // CONVERT TO actual component
 			 contextComponent = Component.JSONtoComponent(valueIn.toString());
+		   }
 		 }
 
 		 
@@ -320,15 +341,34 @@ public class AccumuloUtils {
 	 * @param author
 	 * @return
 	 * @throws TableNotFoundException 
+	 * @throws AccumuloSecurityException 
+	 * @throws AccumuloException 
 	 */
-	public static Event getEventContext(String author) throws TableNotFoundException {
+	public static Event getEventContext(String author) throws  AccumuloException, AccumuloSecurityException {
 		Event context = null;
 
 		Connector aClient = AccumuloClientInstance.getInstance();
 		
 		 Authorizations au = new Authorizations("public");
-		 Scanner scanner = aClient.createScanner(DATABASE_COLLECTION_EVENT_CONTEXT, au);
-		 Range range = Range.exact(author);
+		 Scanner scanner = null;
+		 Range range = null;
+
+		 
+		while(true){
+			try {
+				scanner = aClient.createScanner(DATABASE_COLLECTION_EVENT_CONTEXT, au);
+			    range = Range.exact(author);
+					break;
+			    } catch (TableNotFoundException e) {
+					 // Create Table and retry
+					try {
+						aClient.tableOperations().create(DATABASE_COLLECTION_EVENT_CONTEXT);
+					} catch (TableExistsException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
 		 
 		 
 		 Text familyIn = null, qualIn = null, idIn = null;
@@ -341,22 +381,22 @@ public class AccumuloUtils {
 			 valueIn = entry.getValue(); 
 		 }
 		 
+		 if( !Objects.equals(valueIn, null)){
+		    // Now use the value to extract the actual event
+		    StringBuffer sb = new StringBuffer(valueIn.toString());
+		    String str = valueIn.toString();
+		    String[] values = str.split("::");
 		 
-		 // Now use the value to extract the actual event
-		 StringBuffer sb = new StringBuffer(valueIn.toString());
-		 String str = valueIn.toString();
-		 String[] values = str.split("::");
-		 
-		 range = Range.exact(values[0]);
-		 scanner.setRange(range);
-		 scanner.fetchColumn(new Text(values[1]), new Text(values[2]));
+		    range = Range.exact(values[0]);
+		    scanner.setRange(range);
+		    scanner.fetchColumn(new Text(values[1]), new Text(values[2]));
 		 		 
-		 Event newEvent = null;
+		    Event newEvent = null;
 		 
-		 for(Entry<Key, Value> entry: scanner){
+		    for(Entry<Key, Value> entry: scanner){
 			 valueIn = entry.getValue(); 
-			 Event.JSONtoEvent(valueIn.toString());
-			 
+			 Event.JSONtoEvent(valueIn.toString()); 
+		   }
 		 }
 
 		 
