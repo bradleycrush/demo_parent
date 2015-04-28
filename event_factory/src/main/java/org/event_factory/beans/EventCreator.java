@@ -118,7 +118,7 @@ public class EventCreator {
 		newEvent.setSource(Source.Twitter);
 		newEvent.setTopic(event.getHashtag());
 
-		AccumuloUtils.addEvent(event);
+		AccumuloUtils.addEvent(newEvent);
 
 		// Check if this new event affects the event context
 		Event context = AccumuloUtils.getEventContext(event.getUsername());

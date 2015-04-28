@@ -85,18 +85,8 @@ public class AccumuloUtils {
       wr.addMutation(m);
       wr.close();
       
-//		verifyTable(aClient, DATABASE_EVENT_DEMO);
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//
-//		BasicDBObject doc = event.toBasicDBObject();
-//		db.getCollection(collection).insert(doc);
 	}
 	
-//	private static void verifyTable(Connector conn, String tableName) {
-//		if(conn.tableOperations().exists(tableName)
-//		
-//	}
 
 	/**
 	 * Add a component
@@ -134,11 +124,6 @@ public class AccumuloUtils {
       wr.close();
 
 				
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//
-//		BasicDBObject doc = component.toBasicDBObject();
-//		db.getCollection(collection).insert(doc);
 	}
 
 	/**
@@ -195,16 +180,6 @@ public class AccumuloUtils {
       wr.addMutation(m);
       wr.close();
 
-		//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//
-//		BasicDBObject doc = event.toBasicDBObject();
-//		Event context = getEventContext(event.getAuthor());
-//		if (context != null){
-//			db.getCollection(DATABASE_COLLECTION_EVENT_CONTEXT).findAndModify(context.toBasicDBObject(),doc);
-//		} else{
-//			addEvent(event, DATABASE_COLLECTION_EVENT_CONTEXT);
-//		}
 	}
 	
 	/**
@@ -241,13 +216,6 @@ public class AccumuloUtils {
   wr.close();
 
 		
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//		if (context != null){
-//			db.getCollection(DATABASE_COLLECTION_COMPONENT_CONTEXT).update(context.toBasicDBObject(),component.toBasicDBObject());
-//		} else{
-//			addComponent(component, DATABASE_COLLECTION_COMPONENT_CONTEXT);
-//		}
 	}
 
 	/**
@@ -317,22 +285,7 @@ public class AccumuloUtils {
 
 		 
 		 scanner.close();	
-
 		
-		
-		
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//
-//		DBCollection coll = db
-//				.getCollection(DATABASE_COLLECTION_COMPONENT_CONTEXT);
-//
-//		BasicDBObject query = new BasicDBObject();
-//		query.put("topic", topic);
-//		DBObject obj = coll.findOne(query);
-//		if (obj != null) {
-//			contextComponent = new Component(obj);
-//		}
 		return contextComponent;
 	}
 
@@ -402,17 +355,6 @@ public class AccumuloUtils {
 		 
 		 scanner.close();	
 	 
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//
-//		DBCollection coll = db.getCollection(DATABASE_COLLECTION_EVENT_CONTEXT);
-//
-//		BasicDBObject query = new BasicDBObject();
-//		query.put("author", author);
-//		DBObject obj = coll.findOne(query);
-//		if (obj != null) {
-//			context = new Event(obj);
-//		}
 		return context;
 	}
 
@@ -545,19 +487,6 @@ public class AccumuloUtils {
       
       wr.addMutation(m);
       wr.close();
-//		MongoClient mongoClient = MongoClientInstance.getInstance();
-//		DB db = mongoClient.getDB(DATABASE_EVENT_DEMO);
-//
-//		BasicDBObject doc = new BasicDBObject("hashtag", event.getHashtag())
-//				.append("tweetId", event.getTweetId())
-//				.append("tweetDate", event.getTweetDate())
-//				.append("username", event.getUsername())
-//				.append("userId", event.getUserId())
-//				.append("source", event.getSource().toString())
-//				.append("languageCode", event.getLanguageCode())
-//				.append("message", event.getMessage())
-//				.append("retweetUser", event.getRetweetUser());
-//		db.getCollection(DATABASE_COLLECTION_TWITTER_EVENT).insert(doc);
 
 	}
 }
